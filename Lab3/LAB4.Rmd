@@ -1,0 +1,206 @@
+---
+title: "lab4"
+author: "Qinhao Xu"
+date: "7/20/2017"
+output: html_document
+---
+1. Variable Creation and Transformation
+
+
+A.
+```{r}
+load(url("http://www.stat.ucla.edu/~vlew/datasets/water2013.RData"))
+Water$ZIP <- substr(Water$`Location 1`, 1,5)
+head(Water, n=2)
+```
+B.
+```{r}
+Water$PCTCHANGE <- Water$`FY 12/13`/ Water$`FY 11/12`
+head(Water, n=2)
+```
+
+C.
+```{r}
+a <- data.frame(Water,Water$ZIP) 
+b <- data.frame(zipraceincome,zipraceincome$ZIP) 
+Common <- merge(a,b, by="ZIP") 
+head(Common, n=2)
+```
+D.
+
+(1)
+```{r}
+nonsaver<-Common[which(Common$PCTCHANGE >= 0.80), ]
+table(nonsaver$ZIP)
+median(nonsaver$MEDINC)
+```
+
+
+(2)
+```{r}
+supersaver<-Common[which(Common$PCTCHANGE <= 0.40), ]
+table(supersaver$ZIP)
+median(supersaver$MEDINC)
+```
+
+
+(3)
+```{r}
+median(Common$MEDINC)
+```
+
+(4)
+
+There are more non saver zip code than super saver zip code, which means there are more non-saver than super-savers.
+
+2. String , Dates and Time 
+A.
+```{r}
+library(chron)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+FDCALLS2016<-read.csv("/Users/Qinhaoxu/Desktop/FDCALLS2016.csv",stringsAsFactors = FALSE)
+FDCALLS2016$Time <- strptime(FDCALLS2016$Received.DtTm, format = "%m/%d/%Y %I:%M:%S %p",tz ="")
+FDCALLS2016$MONTH <- months(FDCALLS2016$Time)
+FDCALLS2016$Day <- weekdays(FDCALLS2016$Time)
+FDCALLS2016$Hour <- hours(FDCALLS2016$Time)
+S <-FDCALLS2016[which(FDCALLS2016$Call.Type == "Structure Fire"),]
+sort(table(S$MONTH))
+```
+July has the highest structure fire calls
+
+B.
+```{r}
+library(ggplot2)
+S$Days <- factor(S$Day, levels = c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"))
+ggplot(S) + geom_hex(aes(x=Days, y=Hour),color="black") + scale_fill_gradientn(colours = rainbow(7))+theme(axis.text.x = element_text (size =  6) )
+```
+
+
+
+
+Sunday 15pm has the highest structure fire calls
+
+C.
+```{r}
+neig<- FDCALLS2016[which(FDCALLS2016$Neighborhooods...Analysis.Boundaries!="None"),]
+k<-table(neig$Neighborhooods...Analysis.Boundaries)
+s_neig<-as.data.frame(k)
+
+s_neig1<- neig[which(neig$Call.Type == "Medical Incident"),]
+k1<-table(s_neig1$Neighborhooods...Analysis.Boundaries)
+s_neig2<-as.data.frame(k1)
+s_neig$prop1 <- s_neig2$Freq/s_neig$Freq
+s_neig<-s_neig[order(s_neig$prop1),]
+#lowest
+head(s_neig,n=1)
+#highest
+tail(s_neig,n=1)
+```
+
+3. String and Factorsz
+A.
+```{r}
+library(knitr)
+library(XML)
+library(dplyr)
+library(readr)
+wsj <- readHTMLTable("http://online.wsj.com/public/resources/documents/info-Salaries_for_Colleges_by_Region-sort.html")
+example1<-wsj[[7]] %>% as.data.frame()
+str(example1)
+example1[1:10,1:5] %>% kable
+examplefixed<-lapply(example1,gsub, pattern=c('Â'),replacement=c(''))
+examplefixed<-lapply(examplefixed,gsub, pattern=c(','),replacement=c(''))
+ipeds <- read.csv("/Users/Qinhaoxu/Desktop/ipeds.csv")
+college <- merge(examplefixed,ipeds, by="School.Name") 
+dim(college)
+```
+
+B.
+```{r}
+college$Institutional.control.or.affiliation <- factor(college$Institutional.control.or.affiliation,levels = c(1,3,4), labels = c("Public", "Private, Non-
+Religous","Private, Religious"))
+table(college$Institutional.control.or.affiliation)
+```
+
+C.
+Public Best and Worse colleges in state and out state
+```{r}
+college$Starting.Median.Salary<-gsub("\\$","",college$Starting.Median.Salary)
+p_c<-college[which(college$Institutional.control.or.affiliation=="Public"),]
+p_r<-college[which(college$Institutional.control.or.affiliation=="Private, Religious"),]
+p_n_r<-college[which(college$Institutional.control.or.affiliation=="Private, Non-\nReligous"),]
+
+p_c$Starting.Median.Salary<-as.numeric(p_c$Starting.Median.Salary)
+p_c$Total.price.for.in.state.students.living.on.campus.2013.14<- as.numeric(p_c$Total.price.for.in.state.students.living.on.campus.2013.14)
+p_c$Total.price.for.out.of.state.students.living.on.campus.2013.14 <- as.numeric(p_c$Total.price.for.out.of.state.students.living.on.campus.2013.14)
+p_c$instate<-(p_c$Total.price.for.in.state.students.living.on.campus.2013.14 * 4)/p_c$Starting.Median.Salary
+p_c$outstate<-(p_c$Total.price.for.out.of.state.students.living.on.campus.2013.14 * 4)/p_c$Starting.Median.Salary
+
+#public best and worse colleges in state
+p_college_in<- p_c[,c(1,20,21)]
+p_college_in<- p_college_in[order(p_college_in$instate),]
+head(p_college_in,n=3)
+tail(p_college_in,n=3)
+#public best and worse colleges out state
+p_college_out<- p_c[,c(1,20,22)]
+p_college_out<- p_college_out[order(p_college_out$outstate),]
+head(p_college_out,n=3)
+tail(p_college_out,n=3)
+```
+
+Best and Worse private religous colleges in state and out state
+```{r}
+p_r$Starting.Median.Salary<-as.numeric(p_r$Starting.Median.Salary)
+p_r$Total.price.for.in.state.students.living.on.campus.2013.14<-as.numeric(p_r$Total.price.for.in.state.students.living.on.campus.2013.14)
+p_r$Total.price.for.out.of.state.students.living.on.campus.2013.14<-as.numeric(p_r$Total.price.for.out.of.state.students.living.on.campus.2013.14)
+p_r$instate<-(p_r$Total.price.for.in.state.students.living.on.campus.2013.14 * 4)/p_r$Starting.Median.Salary
+p_r$outstate<-(p_r$Total.price.for.out.of.state.students.living.on.campus.2013.14 * 4)/p_r$Starting.Median.Salary
+
+#private religious colleges  best and worse in state 
+p_r_in<- p_r[,c(1,20,21)]
+p_r_in<- p_r_in[order(p_r_in$instate),]
+head(p_r_in,n=3)
+tail(p_r_in,n=3)
+
+#private religious colleges  best and worse out state 
+p_r_out<- p_r[,c(1,20,22)]
+p_r_out<- p_r_out[order(p_r_out$outstate),]
+head(p_r_out,n=3)
+tail(p_r_out,n=3)
+```
+
+
+Best and Worse private non-religous colleges in state and out state
+```{r}
+p_n_r$Starting.Median.Salary<-as.numeric(p_n_r$Starting.Median.Salary)
+p_n_r$Total.price.for.in.state.students.living.on.campus.2013.14<-as.numeric(p_n_r$Total.price.for.in.state.students.living.on.campus.2013.14)
+p_n_r$Total.price.for.out.of.state.students.living.on.campus.2013.14<-as.numeric(p_n_r$Total.price.for.out.of.state.students.living.on.campus.2013.14)
+p_n_r$instate<-(p_n_r$Total.price.for.in.state.students.living.on.campus.2013.14 * 4)/p_n_r$Starting.Median.Salary
+p_n_r$outstate<-(p_n_r$Total.price.for.out.of.state.students.living.on.campus.2013.14 * 4)/p_n_r$Starting.Median.Salary
+
+#private non religious colleges  best and worse in state 
+non_r<- p_n_r[,c(1,20,21)]
+non_r<- non_r[order(non_r$instate),]
+head(non_r,n=3)
+tail(non_r,n=3)
+
+#private non religious colleges  best and worse out state 
+non_o<- p_n_r[,c(1,20,22)]
+non_o<-non_o[order(non_o$outstate),]
+head(non_o,n=3)
+tail(non_o,n=3)
+
+```
+
+
+
+
+
+
+
+
+
+
+
