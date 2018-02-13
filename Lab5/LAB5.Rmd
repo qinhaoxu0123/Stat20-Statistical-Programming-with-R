@@ -1,0 +1,56 @@
+---
+title: "LAB5704439324"
+author: "Qinhao Xu"
+date: "7/28/2017"
+output: html_document
+---
+1. The Apply Family & DataFest
+```{r}
+library(dplyr)
+load("/Users/Qinhaoxu/Desktop/ga.RData")
+load("/Users/Qinhaoxu/Desktop/adwords.RData")
+load("/Users/Qinhaoxu/Desktop/purchase.RData")
+
+
+sapply(adwords,function(x)  table(is.na(x))[2])
+adwords %>% sapply(function(x) is.na(x) %>% table(.) %>% .[2])
+adwords[,2] <-apply(adwords[,2],2,function(x) gsub("^$|^ $|--", NA, x)) 
+tail(sort(sapply(adwords,function(x) table(is.na(x))[2])), n=1)
+
+sapply(purchase,function(x)  table(is.na(x))[2])
+purchase %>% sapply(function(x) is.na(x) %>% table(.) %>% .[2])
+purchase[,32:45] <-apply(purchase[,32:45],2,function(x) gsub("^$|^ $|NULL", NA, x)) 
+tail(sort(sapply(purchase,function(x) table(is.na(x))[2])),n=1)
+
+```
+
+2. table() and aggregate ()
+```{r}
+
+
+ga_src <- as.data.frame.matrix(table(ga$event_id, ga$device_operatingsystem))
+head(ga_src)
+ga_src$event_id <- row.names(ga_src)
+row.names(ga_src) <- 1:nrow(ga_src)
+head(ga_src)
+
+purch_src <- aggregate(tickets_purchased_qty ~ event_id + primary_act_name, data=purchase, sum, na.rm = TRUE)
+head(purch_src)
+
+ga_src_purch <- merge(ga_src, purch_src, by = "event_id")
+
+```
+
+
+3. tapply()
+```{r}
+device_state <- as.data.frame(tapply(ga$visitnumber, list(ga$geonetwork_region,ga$device_devicecategory), length))
+head(device_state)
+
+device_browser <- ga %>% group_by(device_browser) %>% summarise(total = sum(visitnumber)) %>% arrange(desc(total)) %>% as.data.frame()
+
+head(device_browser[order(device_browser$total, decreasing = TRUE),])
+
+
+```
+
