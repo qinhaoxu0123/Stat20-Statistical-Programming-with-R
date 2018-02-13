@@ -1,0 +1,152 @@
+---
+title: "lab1"
+author: "Qinhao Xu"
+date: "7/2/2017"
+output: html_document
+---
+1.1 Proof of Installation
+
+```{r}
+system("who",intern = TRUE)
+```
+
+1.2 Installing Packages and Loading them using library
+```{r}
+find.package("tidyverse")
+find.package("haven")
+find.package("foreign")
+```
+2. Application of Badic R Rules
+A.
+```{r}
+12^8/3^7
+```
+B.
+```{r}
+64838 - 7314
+```
+C.
+```{r}
+17^(6/5)
+```
+D.
+```{r}
+13%/%4
+```
+E.
+```{r}
+8675+3090-1999+101405+5551-21979+24334
+```
+2.2 Vectors
+2.2.1 Numeric Vectors
+A.
+```{r}
+junk <- c(10,23,45,52,63,25,63,64,2,5)
+junk
+```
+B.
+```{r}
+junk1 <- seq(1,1000,2)
+junk1
+```
+C.
+```{r}
+m <- 7
+junk2 <- c((seq(-m, -1, 1))^3 , 0, (seq(1, m , 1))^3)
+junk2
+```
+D.
+```{r}
+(junk/3)^2
+```
+E.
+library(magrittr)
+plyr::mapvalues(junk, from = c(junk[4], junk[9] ), to = c( (junk[4])^2, (junk[9])^2 ))
+```{r}
+junk[c(4,9)] <- junk[c(4,9)]^2
+junk
+```
+2.2.2  Character (String) and Logical Vectors
+
+A.
+```{r}
+char <- c("alpha","beta","gamma","delta", "epsilon", "zeta","eta", "theta")
+char
+```
+B.
+```{r}
+char[7:8]
+```
+C.
+
+b consisits of logical constants TRUE and FALSE, which they represent 0 and 1.
+
+d is a matrix that consists of numbers and characters. Since character has higher order than numerics, thus the entire matrix is a character matrix
+
+2.3 Matrices 
+
+A.
+1.
+```{r}
+mt<- c(5:1, seq(10, 2, -2), seq(15,3,-3), seq(20,4,-4), seq(25,5,-5) )
+mt1 <- matrix(mt, ncol = 5, byrow = TRUE)
+mt1
+```
+2.
+```{r}
+a<-5:1
+b<-seq(10, 2, -2)
+c<- seq(15,3,-3)
+d<- seq(20,4,-4)
+e <- seq(25,5,-5)
+mt2<- cbind(a,b,c,d,e)
+mt2
+
+```
+matrix(c(a,b,c,d,e), ncol =5, byrow = TRUE)
+3.
+```{r}
+mt3 <- rbind(a,b,c,d,e)
+mt3
+```
+B.
+```{r}
+mt1[4,]
+```
+C.
+```{r}
+mt1[,c(2,4)]
+```
+2.4 Data Frames
+A.
+```{r}
+data("USArrests")
+```
+B.
+```{r}
+class(USArrests)
+typeof(USArrests)
+```
+C.
+```{r}
+str(USArrests[,,drop= FALSE])
+```
+3.1 Find The Function
+
+```{r}
+exp <- 0:9
+exp(exp)
+round(exp(exp), digits =2)
+```
+
+3.2 Find the Operator 
+```{r}
+J <- 25 %% 773
+K <- 5^3 %% 773
+p1 <- K^2 %% 773
+p2 <- J^3 %% 773
+p1
+p2
+```
+
+
