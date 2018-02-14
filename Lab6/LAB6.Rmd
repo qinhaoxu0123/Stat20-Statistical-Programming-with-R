@@ -1,0 +1,68 @@
+---
+title: "lab3"
+author: "Qinhao Xu"
+date: "7/14/2017"
+output: html_document
+---
+1.
+```{r}
+library("readxl")
+library(ggplot2)
+lab3<- read_excel("/Users/Qinhaoxu/Desktop/uctuition1980-2017.xlsx", sheet=1, col_names = TRUE, col_types = NULL, na = "", skip = 0)
+col_mid<-median(lab3$RESTUTITION)
+ggplot(data=lab3, aes(x=1980:2017,y=lab3$RESTUTITION,group=1)) + geom_line(colour="red") +labs(x="Year", y="Dollars") + geom_abline(intercept = col_mid,slope=0,linetype="dashed") + labs(title="UCLA Undergraduate Resident Tuition 1980−2017") + theme(legend.position = c(0.04, 0.8),plot.title = element_text(hjust = 0.5))
+
+```
+
+2.
+```{r}
+library(ggplot2)
+library(knitr)
+playboy<-read.csv("http://www.stat.ucla.edu/~vlew/datasets/playboy.csv")
+playboy$BMI <- (playboy$Weight * 703)/ (playboy$Height)^2
+playboy$MonthF <- factor(playboy$Month, levels = c("January", "February", "March", "April",
+                                  "May", "June", "July", "August",
+                                  "September", "October", "November", "December"))
+ggplot(playboy,aes(MonthF,BMI))+ geom_boxplot(fill=rainbow(12)) + ggtitle("Boxplot of Playboy Cover BMI by Month") +theme(axis.text.x = element_text (size =  6),plot.title = element_text(hjust = 0.5) ) + labs(x="Month", y="Body Mass Index")
+```
+
+3.
+```{r}
+library(ggplot2)
+yelp3<-read.csv("http://www.stat.ucla.edu/~vlew/datasets/yelp3.csv")
+pr4<- yelp3[,c(5,8)]
+S<-pr4[which(pr4$Categories == 'Bars'), ]
+S1<-pr4[which(pr4$Categories == 'Seafood'), ]
+S2<-pr4[which(pr4$Categories == 'Breakfast'), ]
+ggplot(data=S, aes(S$Rating)) + geom_histogram(aes(y=..density..), breaks=seq(1,5,by=0.5),colour="black", fill="orange",alpha=.2) + labs(x="Yelp Rating", y="density") + ggtitle("Bar Ratings") + theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data=S1, aes(S1$Rating)) + geom_histogram(aes(y=..density..), breaks=seq(1,5,by=0.5),colour="black", fill="blue",alpha=.2) + labs(title="Seafood Ratings") + labs(x="Yelp Rating", y="density") + theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data=S2, aes(S2$Rating)) + geom_histogram(aes(y=..density..), breaks=seq(1,5,by=0.5),colour="black", fill="red",alpha=.2) + labs(title="Breakfast Ratings") + labs(x="Yelp Rating", y="density") + theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+4.
+A.
+```{r}
+library(GGally)
+ggpairs(data = midwest,columns = c(5,10,18:20,23),title ="Scatterplot Matrix of ggplot dataset midwest", upper = list(continuous="points") , lower = list(continuous = "points"))
+```
+B
+```{r}
+ggplot(midwest, aes(perchsd, percollege, colour= state)) + geom_point() + geom_hline(yintercept = median(midwest$percollege),col="red") +geom_vline(xintercept = median(midwest$perchsd), col="blue") + labs( title="Plot of College degree on high school diploma with medians") + theme(legend.position = c(0.04, 0.8),plot.title = element_text(hjust = 0.5))
+```
+
+5.
+```{r}
+library("readxl")
+pr5<- read_excel("/Users/Qinhaoxu/Desktop/uctuition1980-2017.xlsx", sheet=1, col_names = TRUE, col_types = NULL, na = "", skip = 0)
+pr5$Resident<-pr5$SSF + pr5$RESTUTITION
+pr5$NonResident<-pr5$SSF + pr5$NONRES + pr5$HRST
+
+ggplot(data=lab3, aes(x=1980:2017)) + geom_line(aes(y=pr5$NonResident, colour="Non-Resident"), linetype="dashed") + geom_line(aes(y=pr5$Resident,colour="Resident")) + labs(title="UCLA Undergraduate Resident Tuition 1980−2017")+theme(plot.title = element_text(hjust = 0.5)) +labs(x="Year", y="in Dollars") + theme(legend.title=element_blank(),legend.position = c(0.08, 0.95),plot.title = element_text(hjust = 0.5))
+
+
+```
+
+
